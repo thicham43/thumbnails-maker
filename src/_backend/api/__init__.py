@@ -1,1 +1,1 @@
-from .thumbnails_maker import ThumbnailsMaker, ThumbnailsFinder
+from .thumbnails_service import ThumbnailsMaker, ThumbnailsFinder

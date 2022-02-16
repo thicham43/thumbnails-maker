@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import asyncio
 from api import ThumbnailsMaker, ThumbnailsFinder
-from PIL.Image import Image
 
 app = FastAPI(title="Thumbnails Maker",
               version="0.0.1"

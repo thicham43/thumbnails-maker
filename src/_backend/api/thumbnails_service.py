@@ -1,25 +1,29 @@
+from abc import ABCMeta
 import os
 from PIL import Image
 from typing import List
 from fastapi import UploadFile
 import asyncio
 
-class ThumbnailsMaker():
-    """ singleton class"""
 
-    __cache = None
+class AbstractThumbnailsService(metaclass=ABCMeta):
+    """ singleton class """
 
-    def __new__(cls):
-        if cls.__cache is None:
-            cls.__cache = super().__new__(cls)
-            return cls.__cache
-        return cls.__cache
+    __instance = None
 
+    def __new__(cls, *args, **kwargs):
+        print("thum service cls : ", cls)
+        if cls.__instance is None:
+            cls.__instance = super(AbstractThumbnailsService, cls).__new__(cls, *args, **kwargs)
+        return cls.__instance
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.incoming_dir = os.path.join(os.getcwd(), "images_db", "in")
         self.ougoing_dir = os.path.join(os.getcwd(), "images_db", "out")
+    
 
+
+class ThumbnailsMaker(AbstractThumbnailsService):
 
     async def save_original_image(self, image: UploadFile) -> None:
         """ save image to images_db\in """
@@ -32,7 +36,6 @@ class ThumbnailsMaker():
 
     async def make_thumbnails(self, image_name: str, resolutions: List[int]) -> List[Image.Image]:
         """ read the original image from the in dir
-            make copy of it
             resize it with a new height and width
             save the result image to out dir with a modified name such: \out\image-thumb-24.jpeg
         """
@@ -52,13 +55,9 @@ class ThumbnailsMaker():
                 thumbnail.save(fp=out_path)
                 thumbnails.append(thumbnail)
         return thumbnails
-            
 
 
-class ThumbnailsFinder(ThumbnailsMaker):
-
-    def __new__(cls):
-        return super().__new__(cls)
+class ThumbnailsFinder(AbstractThumbnailsService):
 
     async def get_thumbnail_path(self, img_name: str, thumb_resolution: str):
         name, ext = img_name.split(".")

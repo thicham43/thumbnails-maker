@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { filter } from 'rxjs';
 import { ThumbnailsMakerService } from '../services/thumbnails-maker.service';
 
 @Component({
