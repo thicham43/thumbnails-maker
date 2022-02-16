@@ -1,0 +1,39 @@
+    <div *ngIf="msg" style="color: red;">{{msg}}</div>
+    <br>
+    <div>
+        <img *ngIf="img_url" [src]="img_url" width="128" height="128">
+    </div>
+    <br>
+    <div>
+        <label for="img">Image</label>
+        <input id="img" type="file" (change)="onChangeImg($event)"/>
+    </div>
+    <br>
+    Resolutions (width)
+    <div>
+        24p
+        <input #resol_24 id="resol_24" type="checkbox" [disabled]="success" (change)="onToggleResol_24(resol_24.checked)"/>
+    </div>
+    <div>
+        32p
+        <input #resol_32 id="resol_32" type="checkbox" [disabled]="success" (change)="onToggleResol_32(resol_32.checked)"/>
+    </div>
+    <div>
+        64p
+        <input #resol_64 id="resol_64" type="checkbox" [disabled]="success" (change)="onToggleResol_64(resol_64.checked)"/>
+    </div>
+    <br>
+    <div style="display: flex;">
+        <button (click)="make_thumbnails()">
+            Make thumbnails
+        </button>
+        <button *ngIf="success" (click)="show_thumbnails()">
+            Show thumbnails
+        </button>
+    </div>
+    <br>
+    <div *ngIf="thumbnails_data">
+        <div *ngFor="let thumb of thumbnails_data">
+            {{thumb[1]}} <img [src]="thumb[0]">
+        </div>
+    </div>
