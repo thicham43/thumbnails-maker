@@ -1,7 +1,7 @@
     <div *ngIf="msg" style="color: red;">{{msg}}</div>
     <br>
     <div>
-        <img *ngIf="img_url" [src]="img_url" width="128" height="128">
+        <img *ngIf="image_url" [src]="image_url" width="128" height="128">
     </div>
     <br>
     <div>
@@ -10,26 +10,26 @@
     </div>
     <br>
     Resolutions (width)
-    <div>
-        24p
-        <input #resol_24 id="resol_24" type="checkbox" [disabled]="success" (change)="onToggleResol_24(resol_24.checked)"/>
-    </div>
-    <div>
-        32p
-        <input #resol_32 id="resol_32" type="checkbox" [disabled]="success" (change)="onToggleResol_32(resol_32.checked)"/>
-    </div>
-    <div>
-        64p
-        <input #resol_64 id="resol_64" type="checkbox" [disabled]="success" (change)="onToggleResol_64(resol_64.checked)"/>
+    <div *ngFor="let resol of resolutions">
+        {{resol.width}}p
+        <input type="checkbox" (change)="onToggleResolution(resol)" [checked]="resol.is_target" [disabled]="success"/>
     </div>
     <br>
     <div style="display: flex;">
-        <button (click)="make_thumbnails()">
+        <button *ngIf="!success" (click)="make_thumbnails()">
             Make thumbnails
         </button>
-        <button *ngIf="success" (click)="show_thumbnails()">
-            Show thumbnails
-        </button>
+        <div *ngIf="success">
+            <span style="color: #126606;background: #b2f0a9;padding: 2px 6px;margin-right: 5px;">
+                Done successfully!
+            </span>
+            <button *ngIf="thumbnails_data.length == 0" (click)="show_thumbnails()">
+                Show thumbnails
+            </button>
+            <button (click)="reset()">
+                Process new image
+            </button>
+        </div>
     </div>
     <br>
     <div *ngIf="thumbnails_data">

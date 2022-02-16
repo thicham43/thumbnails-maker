@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ThumbnailsMakerService } from '../services/thumbnails-maker.service';
+import { Resolution, RESOLUTIONS } from '../_core/resolution';
+import { ThumbnailsMakerService } from '../_core/services/thumbnails-maker.service';
 
 @Component({
   selector: 'app-thumbnails-maker',
@@ -9,13 +10,11 @@ import { ThumbnailsMakerService } from '../services/thumbnails-maker.service';
 })
 export class ThumbnailsMakerComponent implements OnInit {
 
-  img: any;
-  img_url: any;
+  image: any;
+  image_url: any;
   msg = "";
-  resolution_24: boolean = false;
-  resolution_32: boolean = false;
-  resolution_64: boolean = false;
   success = false;
+  resolutions: Resolution[] = RESOLUTIONS;
   thumbnails_data: any[] = [];
 
   constructor(private thumbMakerService: ThumbnailsMakerService,
@@ -27,7 +26,6 @@ export class ThumbnailsMakerComponent implements OnInit {
 
   onChangeImg(event: any): void {
     let img = event.target.files[0];
-		
 		if (img.type.match(/image\/*/) == null) {
 			this.msg = "Sorry! Only images are supported";
 			return;
@@ -37,67 +35,53 @@ export class ThumbnailsMakerComponent implements OnInit {
 		reader.readAsDataURL(img);
 		reader.onload = (_event) => {
                                   this.msg = "";
-                                  this.img_url = reader.result; 
+                                  this.image_url = reader.result; 
                                 }
-    this.img = img;
+    this.image = img;
   }
 
-  onToggleResol_24(value: boolean): void {
-    this.resolution_24 = value;
-  }
-
-  onToggleResol_32(value: boolean): void {
-    this.resolution_32 = value;
-  }
-
-  onToggleResol_64(value: boolean): void {
-    this.resolution_64 = value;
+  onToggleResolution(resol: Resolution): void {
+    resol.is_target = !resol.is_target;
   }
 
 
   make_thumbnails(): void {
-    if(!this.img || this.img.size == 0) {
-			this.msg = 'You must select an image';
+    if(!this.image || this.image.size == 0) {
+			this.msg = 'No image selected!';
 			return;
 		}
-
-    let target_resolutions: number[] = [];
-    if(this.resolution_24) target_resolutions.push(24);
-    if(this.resolution_32) target_resolutions.push(32);
-    if(this.resolution_64) target_resolutions.push(64);
+    let target_resolutions = this.resolutions.filter(r => r.is_target).map(r => r.width);
 
     if(target_resolutions.length == 0) {
 			this.msg = 'Please select at least one target resolution!';
 			return;
 		}
-
-    this.thumbMakerService.make_thumbnails(this.img, target_resolutions).subscribe(status => this.success = status);
+    this.thumbMakerService.make_thumbnails(this.image, target_resolutions).subscribe(status => this.success = status);
   }
 
-  show_thumbnails(): void {
-    let img_name = this.img.name;
 
-    if(this.resolution_24)
-      this.thumbMakerService.get_thumbnail(img_name, 24).subscribe({  next: (resp: Blob) => { let thumb_url = window.URL.createObjectURL(resp);
-                                                                                              let safe_url = this.sanitizer.bypassSecurityTrustResourceUrl(thumb_url);
-                                                                                              this.thumbnails_data.push([safe_url, 24]);
-                                                                                            },
-                                                                      error: (err: any) => console.log(err)
-                                                                    });
-    if(this.resolution_32)
-      this.thumbMakerService.get_thumbnail(img_name, 32).subscribe({  next: (resp: Blob) => { let thumb_url = window.URL.createObjectURL(resp);
-                                                                                              let safe_url = this.sanitizer.bypassSecurityTrustResourceUrl(thumb_url);
-                                                                                              this.thumbnails_data.push([safe_url, 32]);
-                                                                                            },
-                                                                      error: (err: any) => console.log(err)
-                                                                    });
-    if(this.resolution_64)
-      this.thumbMakerService.get_thumbnail(img_name, 64).subscribe({  next: (resp: Blob) => { let thumb_url = window.URL.createObjectURL(resp);
-                                                                                              let safe_url = this.sanitizer.bypassSecurityTrustResourceUrl(thumb_url);
-                                                                                              this.thumbnails_data.push([safe_url, 64]);
-                                                                                            },
-                                                                      error: (err: any) => console.log(err)
-                                                                    });
+  show_thumbnails(): void {
+    let img_name = this.image.name;
+    let target_resolutions = this.resolutions.filter(r => r.is_target).map(r => r.width);
+    
+    for(let resol of target_resolutions) {
+      this.thumbMakerService.get_thumbnail(img_name, resol).subscribe({ next: (resp: Blob) => { let thumb_url = window.URL.createObjectURL(resp);
+                                                                                                let safe_url = this.sanitizer.bypassSecurityTrustResourceUrl(thumb_url);
+                                                                                                this.thumbnails_data.push([safe_url, resol]);
+                                                                                              },
+                                                                        error: (err: any) => console.log(err)
+                                                                      });
+    }
+    this.thumbnails_data.sort((r1, r2) => r1[1] > r2[1] ? 1 : -1);
+  }
+
+
+  reset(): void {
+    this.image = null;
+    this.image_url = null;
+    this.success = false;
+    this.thumbnails_data = [];
+    this.resolutions.forEach(r => r.is_target = false);
   }
 
 
