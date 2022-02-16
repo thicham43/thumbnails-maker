@@ -46,7 +46,7 @@ export class ThumbnailsMakerComponent implements OnInit {
 
   onToggleResolution(resol: Resolution): void {
     resol.is_target = !resol.is_target;
-    const resolutionsArray: FormArray = this.form.get('resolutions') as FormArray;
+    const resolutionsArray: FormArray = this.resolutions as FormArray;
     resolutionsArray.clear();
     this.resolutions_data.filter(r => r.is_target)
                          .forEach(r => resolutionsArray.push(new FormControl(r.width)));
