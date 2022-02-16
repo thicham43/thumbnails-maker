@@ -12,7 +12,6 @@ app = FastAPI(title="Thumbnails Maker",
 # CORS
 app.add_middleware(CORSMiddleware,
                    allow_origins=["http://localhost:4200"],
-                   allow_credentials=True,
                    allow_methods=["*"],
                    allow_headers=["*"],
                    )
@@ -22,14 +21,19 @@ def index():
     return "Hello world!"
 
 
-
-
 @app.post("/api/make_thumbnails")
 async def make_thumbnails(image: UploadFile = File(...), resolutions: str = Form(...)) -> bool:
+    resolutions = list(map(int, resolutions.split(",")))
+    finder = ThumbnailsFinder()
+    for r in resolutions.copy():
+        thumb_path = await finder.get_thumbnail_path(image.filename, r)
+        if thumb_path:
+            resolutions.remove(r)
+    if not resolutions:
+        return True
     maker = ThumbnailsMaker()
     await maker.save_original_image(image)
-    resolutions = list(map(int, resolutions.split(",")))
-    thumbnails = await maker.make_thumbnails(image.filename, resolutions)
+    await maker.make_thumbnails(image.filename, resolutions)
     return True
 
 

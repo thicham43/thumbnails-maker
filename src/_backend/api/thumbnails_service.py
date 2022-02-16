@@ -12,7 +12,6 @@ class AbstractThumbnailsService(metaclass=ABCMeta):
     __instance = None
 
     def __new__(cls, *args, **kwargs):
-        print("thum service cls : ", cls)
         if cls.__instance is None:
             cls.__instance = super(AbstractThumbnailsService, cls).__new__(cls, *args, **kwargs)
         return cls.__instance
@@ -34,7 +33,7 @@ class ThumbnailsMaker(AbstractThumbnailsService):
             img.write(content)
 
 
-    async def make_thumbnails(self, image_name: str, resolutions: List[int]) -> List[Image.Image]:
+    async def make_thumbnails(self, image_name: str, resolutions: List[int]) -> None:
         """ read the original image from the in dir
             resize it with a new height and width
             save the result image to out dir with a modified name such: \out\image-thumb-24.jpeg
@@ -42,7 +41,6 @@ class ThumbnailsMaker(AbstractThumbnailsService):
         os.makedirs(self.ougoing_dir, exist_ok=True)
         img_path = os.path.join(self.incoming_dir, image_name)
 
-        thumbnails = []
         with Image.open(img_path) as img:
             _, ext = os.path.splitext(img_path)
             ratio = img.height / img.width
@@ -53,8 +51,7 @@ class ThumbnailsMaker(AbstractThumbnailsService):
                 name, ext = image_name.split('.')
                 out_path = os.path.join(self.ougoing_dir, f"{name}-thumb-{w}.{ext}")
                 thumbnail.save(fp=out_path)
-                thumbnails.append(thumbnail)
-        return thumbnails
+
 
 
 class ThumbnailsFinder(AbstractThumbnailsService):
