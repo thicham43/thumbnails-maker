@@ -11,9 +11,11 @@ export class ThumbnailsMakerService {
 
   constructor(private http: HttpClient) { }
 
-  make_thumbnails(img: File | any, resolutions: number[]): Observable<boolean> {
-    const formData = new FormData(); 
-    formData.append("image", img, img.name);
+  make_thumbnails(data: any): Observable<boolean> {
+    const formData = new FormData();
+    const image = data.image;
+    const resolutions = data.resolutions;
+    formData.append("image", image, image.name);
     formData.append("resolutions", `${resolutions}`);
     return this.http.post<boolean>(`${this.api_url}/make_thumbnails`, formData);
   }
