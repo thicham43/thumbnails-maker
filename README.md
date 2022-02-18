@@ -1,8 +1,15 @@
-# ThumbnailsMaker
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.0.1.
+# Thumbnails Maker - Angular <--> FastAPI
 
 ## Development server
+
+# `FastAPI`
+Create a virtual env and install requirements `pip install -r requirements.txt`
+
+Run the FastAPI app under Uvicorn ASGI server: `src/_backend $> uvicorn main:app --reload`
+
+# `Angular`
+
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.0.1.
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
