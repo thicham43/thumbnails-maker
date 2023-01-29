@@ -1,24 +1,29 @@
-    <div *ngIf="msg" style="color: red;">{{msg}}</div>
-    <br>
     <div>
         <img *ngIf="image_url" [src]="image_url" width="128" height="128">
     </div>
+
     <br>
-    <div>
-        <label for="img">Image</label>
-        <input id="img" type="file" (change)="onChangeImg($event)"/>
-    </div>
     <br>
-    Resolutions (width)
-    <div *ngFor="let resol of resolutions">
-        {{resol.width}}p
-        <input type="checkbox" (change)="onToggleResolution(resol)" [checked]="resol.is_target" [disabled]="success"/>
-    </div>
+
+    <form [formGroup]="form" (ngSubmit)="make_thumbnails()">
+        <div>
+            <label for="img">Image</label>
+            <input id="img" type="file" formControlName="image" (change)="onChangeImg($event)"/>
+        </div>
+        <div *ngIf="image?.touched && image?.invalid" style="color:red;">
+            <span *ngIf="image?.errors?.['required']">No image selected!</span>
+        </div>
+        Resolutions (width)
+        <div *ngFor="let resol of resolutions_data">
+            {{resol.width}}p
+            <input type="checkbox" (change)="onToggleResolution(resol)" [disabled]="success"/>
+        </div>
+        <button type="submit" [disabled]="form.invalid">Make thumbnails</button>
+    </form>
+
+    <br>
     <br>
     <div style="display: flex;">
-        <button *ngIf="!success" (click)="make_thumbnails()">
-            Make thumbnails
-        </button>
         <div *ngIf="success">
             <span style="color: #126606;background: #b2f0a9;padding: 2px 6px;margin-right: 5px;">
                 Done successfully!
